@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    #inline {
+      padding: 10px;
+    }
+
+    .beautiful {
+      /* so the custom format is applied when button `Copy content` is clicked */
+      background-color: #ffba08;
+      color: black;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+  </style>
+  <script src="https://cdn.tiny.cloud/1/j1x3xh4cc9z6k78vh6s6g4bil8doncremvl8gpa0umx30i5t/tinymce/5/tinymce.min.js"
+    referrerpolicy="origin"></script>
+
+  <script>
+    const dialogConfig = {
+      title: 'Beautify',
+      body: {
+        type: 'panel',
+        items: [
+          {
+            type: 'input',
+            name: 'uglyText',
+            label: 'Enter text that you want to be beautiful'
+          }
+        ]
+      },
+      buttons: [
+        {
+          type: 'cancel',
+          name: 'closeButton',
+          text: 'Cancel'
+        },
+        {
+          type: 'submit',
+          name: 'submitButton',
+          text: 'Beautify',
+          primary: true
+        }
+      ],
+      onSubmit: function (api) {
+        const data = api.getData();
+        tinymce.activeEditor.execCommand('mceInsertContent', false, `<span class="beautiful">${data.uglyText}</span>`);
+        api.close();
+      }
+    };
+
+    tinymce.init({
+      selector: '#classic',
+      plugins: 'insertdatetime code table lists fullscreen wordcount print link image autoresize',
+      toolbar: `
+        undo redo | 
+        bold italic | 
+        alignleft aligncenter alignright alignjustify | 
+        fontselect fontsizeselect styleselect | 
+        bullist numlist outdent indent | 
+        link image |
+        fullscreen wordcount code print |
+        beautify
+      `,
+      content_style: `
+        body { 
+          font-size: 14pt 
+        }
+        .beautiful {     
+          background-color: #ffba08;
+          color: black;
+          padding: 1px 4px;
+          border-radius: 4px; 
+        }
+      `,
+      formats: {
+        beautiful: { inline: 'span', classes: 'beautiful' }
+      },
+      style_formats: [
+        { title: 'Heading 1', format: 'h1' },
+        { title: 'Heading 2', format: 'h2' },
+        { title: 'Heading 3', format: 'h3' },
+        { title: 'Heading 4', format: 'h4' },
+        { title: 'Heading 5', format: 'h5' },
+        { title: 'Heading 6', format: 'h6' },
+        { title: 'Preformatted', format: 'pre' },
+        { title: 'Beautiful', format: 'beautiful' },
+      ],
+      setup: function (editor) {
+        editor.ui.registry.addButton('beautify', {
+          icon: 'brightness',
+          tooltip: 'Make it beautiful',
+          onAction: function () {
+            editor.windowManager.open(dialogConfig);
+          }
+        });
+      }
+    });
+  </script>
+
+  <script type="text/javascript">
+    tinymce.init({
+      selector: '#inline',
+      inline: true,
+      setup: function (editor) {
+        editor.ui.registry.addContextToolbar('textselection', {
+          predicate: function (node) {
+            return !editor.selection.isCollapsed();
+          },
+          items: 'bold italic underline',
+          position: 'selection',
+          scope: 'node'
+        });
+      },
+      content_style: 'body { font-size: 14pt }'
+    });
+  </script>
+
+</head>
+
+<body>
+  <h1>TinyMCE</h1>
+  <h2>Classic Editor</h2>
+  <form method="post">
+    <textarea id="classic"></textarea>
+  </form>
+  <h2>Inline Editor</h2>
+  <form method="post">
+    <div id="inline">Click here to edit!</div>
+  </form>
+  <h2>Copy</h2>
+  <button id="copy">Copy content</button>
+  <div id="target"></div>
+
+  <script>
+    document.getElementById('copy').addEventListener('click', () => {
+      const classicEditorContent = tinymce.get('classic').getContent();
+      const inlineEditorContent = tinymce.get('inline').getContent();
+      document.getElementById('target').innerHTML = `${classicEditorContent}<br>${inlineEditorContent}`;
+    });
+  </script>
+</body>
+
+</html>
